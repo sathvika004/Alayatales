@@ -1,38 +1,49 @@
-# 🛕 Vedika – A Bilingual Platform for Exploring Indian Temples
+# 🛕 Aalayatales – Showcasing the Spirit of Temples
 
-**SOAI 2025 Project by Team TempleTales**
-
----
-
-## 📖 Overview
-
-**Vedika** (వేదిక) is a bilingual (Telugu and English) web platform that showcases temples across India, focusing on their cultural, spiritual, and historical significance. It serves as a digital altar where users can explore temples, their legends, rituals, and architectural beauty — in a language they connect with.
+**SOAI 2025 Project – Preserving Culture Through Code**
 
 ---
 
-## 🧩 Key Features
+## 🌟 About the Project
 
-- 🛕 Temple profiles with details in **Telugu and English**
-- 📍 Location-based search (Map View)
-- 🧾 Legends, specialties, rituals, architecture
-- 🔍 Filter by deity, region, time period, or style
-- 🌐 Language switcher (Telugu ↔ English)
-- 🗣️ Optional text-to-speech (Telugu and English voice)
+**Aalayatales**  is a bilingual open-source platform built using **Streamlit** to upload and showcase various **locally renowned temples** across India. Each temple featured highlights its:
+
+- ✨ Spiritual Significance  
+- 🏛️ Historical Background  
+- 🏯 Architectural Features  
+- 🙏 Presiding Deity  
+- 🎉 Festivals Celebrated  
+- 📍 Geographical Location  
+
+The aim is to **preserve India’s diverse temple heritage** and promote **temple tourism**, making regional spiritual and cultural knowledge more accessible to everyone.
+
+---
+
+## 💡 Key Features
+
+- Bilingual interface: **Telugu and English**
+- Temple showcase with **images, legends, and rituals**
+- Search/filter by **deity, location, or style**
+- Location-based map integration
+- Festival highlights and cultural insights
+- Clean UI using **Streamlit** (mobile-friendly)
+- Completely **open-source and lightweight**
 
 ---
 
 ## 🧪 Tech Stack
 
-| Layer       | Technology                     |
-|-------------|-------------------------------|
-| Frontend    | ReactJS / Tailwind / Streamlit |
-| Backend     | Python (FastAPI or Flask)      |
-| Database    | MongoDB / PostgreSQL           |
-| Translation | Manual + IndicTrans2 / Google Translate API |
-| Hosting     | Render / Railway / GCP         |
-| Extras      | Google Maps API, TTS API       |
+| Layer        | Tools Used                      |
+|--------------|-------------------------------|
+| Frontend     | **Streamlit** (Python)          |
+| Backend      | **Python** (Optional Flask or FastAPI for APIs) |
+| Database     | **CSV / JSON** (initial), optional **MongoDB** |
+| Hosting      | **Streamlit Community Cloud**, Render, or Railway |
+| Maps         | **Leaflet.js** / Streamlit map component |
+| Audio/Text   | **gTTS / OpenTTS** for voice rendering |
+| Languages    | Manual + IndicTrans2 for Telugu translation |
 
 ---
 
-## 🗂️ Project Structure
+## 📂 Project Structure
 
