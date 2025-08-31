@@ -1,0 +1,203 @@
+body {
+  font-family: sans-serif;
+  margin: 0;
+  background-color: #f4f4f4;
+}
+
+.App {
+  text-align: center;
+}
+
+main {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 20px auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 500px;
+  margin: 0 auto 40px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+form input[type="text"],
+form textarea,
+form input[type="file"] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+form button {
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+form button:hover {
+  background-color: #0056b3;
+}
+
+.temple-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.temple-card {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  text-align: left;
+}
+
+.temple-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.temple-card h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.temple-card p {
+  font-size: 0.9em;
+  color: #666;
+  line-height: 1.4;
+}
+
+.temple-card a {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 12px;
+  background-color: #28a745;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.temple-card a:hover {
+  background-color: #218838;
+}
+
+.temple-detail-page {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    text-align: left;
+}
+
+.temple-detail-page img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.temple-detail-page h2 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.temple-detail-page p {
+    color: #555;
+    line-height: 1.6;
+}
+
+.admin-temple-list {
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #f9f9f9;
+}
+
+.admin-temple-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.admin-temple-row:last-child {
+    border-bottom: none;
+}
+
+.admin-temple-row span {
+    font-weight: bold;
+    color: #333;
+}
+
+.admin-temple-row div {
+    display: flex;
+    gap: 10px;
+}
+
+.admin-temple-row a,
+.admin-temple-row button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    color: white;
+}
+
+.admin-temple-row a {
+    background-color: #ffc107; /* Yellow for Edit */
+}
+
+.admin-temple-row a:hover {
+    background-color: #e0a800;
+}
+
+.admin-temple-row button {
+    background-color: #dc3545; /* Red for Delete */
+}
+
+.admin-temple-row button:hover {
+    background-color: #c82333;
+}
+/* ... other CSS rules ... */
+
+.image-gallery {
+    display: flex; /* Enable flexbox for horizontal layout */
+    flex-wrap: wrap; /* Allow images to wrap to the next line if needed */
+    gap: 10px; /* Add some space between images */
+    margin-bottom: 20px; /* Add some space below the gallery */
+}
+
+.image-gallery img {
+    width: calc(33.33% - 10px); /* Make each image take up roughly one-third of the container width, accounting for gap */
+    height: 200px; /* Set a fixed height for the images */
+    object-fit: cover;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
