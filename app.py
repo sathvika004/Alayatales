@@ -3,30 +3,18 @@ Alayatales - Temple Management System
 A Streamlit application for managing temple information
 """
 
+__version__ = "0.1.0"
+
 import streamlit as st
 from streamlit_option_menu import option_menu
 import os
 from dotenv import load_dotenv
-from datetime import datetime
-import hashlib
-import json
 
 # Import custom modules
 from models import (
-    init_database, 
-    get_all_temples, 
-    get_temple_by_id,
-    create_temple,
-    update_temple,
-    delete_temple,
-    create_user,
-    get_user_by_email,
-    get_user_by_id
+    init_database
 )
 from auth import (
-    hash_password,
-    verify_password,
-    check_authentication,
     login_user,
     logout_user,
     register_user
@@ -301,7 +289,6 @@ def show_profile_page():
             st.markdown("### Account Settings")
             with st.expander("Change Password"):
                 with st.form("change_password"):
-                    old_password = st.text_input("Current Password", type="password")
                     new_password = st.text_input("New Password", type="password")
                     confirm_password = st.text_input("Confirm New Password", type="password")
                     
