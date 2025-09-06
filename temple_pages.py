@@ -119,11 +119,11 @@ def display_temple_card(temple: Dict):
             else:
                 # If image is a URL or file path
                 try:
-                    st.image(temple['images'][0], use_container_width=True)
+                    st.image(temple['images'][0], width=300)
                 except:
-                    st.image("https://via.placeholder.com/300x200?text=Temple+Image", use_container_width=True)
+                    st.image("https://via.placeholder.com/300x200?text=Temple+Image", width=300)
         else:
-            st.image("https://via.placeholder.com/300x200?text=No+Image", use_container_width=True)
+            st.image("https://via.placeholder.com/300x200?text=No+Image", width=300)
         
         # Temple info
         st.markdown(f"### {temple.get('name', 'Unknown Temple')}")
@@ -181,9 +181,9 @@ def show_temple_detail(temple_id: str):
             """, unsafe_allow_html=True)
         else:
             try:
-                st.image(temple['images'][selected_image], use_container_width=True)
+                st.image(temple['images'][selected_image], width=600)
             except:
-                st.image("https://via.placeholder.com/600x400?text=Image+Not+Available", use_container_width=True)
+                st.image("https://via.placeholder.com/600x400?text=Image+Not+Available", width=600)
         
         # Thumbnail gallery
         if len(temple['images']) > 1:
@@ -401,7 +401,7 @@ def show_edit_temple(temple_id: str):
                         """, unsafe_allow_html=True)
                     else:
                         try:
-                            st.image(img, use_container_width=True)
+                            st.image(img, width=150)
                         except:
                             st.text("Image preview unavailable")
         
@@ -487,7 +487,7 @@ def show_admin_dashboard():
         
         import plotly.express as px
         fig = px.bar(x=locations, y=counts, labels={'x': 'Location', 'y': 'Number of Temples'})
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig)
     
     # Quick Actions
     st.markdown("### Quick Actions")
