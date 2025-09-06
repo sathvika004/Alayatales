@@ -6,9 +6,15 @@ A Streamlit application for managing temple information
 __version__ = "0.1.0"
 
 import streamlit as st
-from streamlit_option_menu import option_menu
 import os
 from dotenv import load_dotenv
+
+# Try to import streamlit_option_menu, use fallback if not available
+try:
+    from streamlit_option_menu import option_menu
+    HAS_OPTION_MENU = True
+except ImportError:
+    HAS_OPTION_MENU = False
 
 # Import custom modules
 from models import (
@@ -168,28 +174,7 @@ def show_navigation():
         # Combine all menu items
         all_menu_items = public_menu + admin_menu + auth_menu
         
-        # Create navigation menu
-        selected = option_menu(
-            menu_title=None,
-            options=all_menu_items,
-            icons=None,
-            menu_icon="cast",
-            default_index=0,
-            styles={
-                "container": {"padding": "0!important", "background-color": "#fafafa"},
-                "icon": {"color": "orange", "font-size": "20px"},
-                "nav-link": {
-                    "font-size": "16px",
-                    "text-align": "left",
-                    "margin": "0px",
-                    "padding": "10px",
-                    "--hover-color": "#eee",
-                },
-                "nav-link-selected": {"background-color": "#667eea"},
-            }
-        )
-        
-        # Map selection to page
+        # Page mapping
         page_mapping = {
             "🏠 Home": "home",
             "🛕 All Temples": "temples",
@@ -200,7 +185,44 @@ def show_navigation():
             "👤 Profile": "profile"
         }
         
-        st.session_state.page = page_mapping.get(selected, "home")
+        # Use streamlit-option-menu if available, otherwise use buttons
+        if HAS_OPTION_MENU:
+            # Create navigation menu with option_menu
+            selected = option_menu(
+                menu_title=None,
+                options=all_menu_items,
+                icons=None,
+                menu_icon="cast",
+                default_index=0,
+                styles={
+                    "container": {"padding": "0!important", "background-color": "#fafafa"},
+                    "icon": {"color": "orange", "font-size": "20px"},
+                    "nav-link": {
+                        "font-size": "16px",
+                        "text-align": "left",
+                        "margin": "0px",
+                        "padding": "10px",
+                        "--hover-color": "#eee",
+                    },
+                    "nav-link-selected": {"background-color": "#667eea"},
+                }
+            )
+            st.session_state.page = page_mapping.get(selected, "home")
+        else:
+            # Fallback: Use regular Streamlit buttons
+            for menu_item in all_menu_items:
+                if st.button(menu_item, key=f"nav_{menu_item}", use_container_width=True):
+                    st.session_state.page = page_mapping.get(menu_item, "home")
+                    st.rerun()
+            
+            # Show current page indicator
+            current_page = None
+            for item, page in page_mapping.items():
+                if page == st.session_state.page:
+                    current_page = item
+                    break
+            if current_page:
+                st.info(f"Current page: {current_page}")
 
 def show_login_page():
     """Display login page"""

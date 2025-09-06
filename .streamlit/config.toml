@@ -1,0 +1,73 @@
+[theme]
+# Primary color
+primaryColor = "#667eea"
+
+# Background color for the main content area
+backgroundColor = "#ffffff"
+
+# Background color for sidebar and most interactive widgets
+secondaryBackgroundColor = "#f8f9fa"
+
+# Color used for almost all text
+textColor = "#262730"
+
+# Font family for all text in the app, except code blocks
+font = "sans serif"
+
+[server]
+# Max size, in megabytes, for files uploaded with the file uploader
+maxUploadSize = 10
+
+# Max size, in megabytes, of messages that can be sent via the WebSocket connection
+maxMessageSize = 200
+
+# Enables support for Cross-Origin Resource Sharing (CORS) protection
+enableCORS = true
+
+# Enables support for Cross-Site Request Forgery (CSRF) protection
+enableXsrfProtection = true
+
+# Max number of concurrent HTTP connections
+maxCachedMessageAge = 24
+
+# Port to use for the server
+port = 8501
+
+# Enable serving of static files
+enableStaticServing = true
+
+# Disable development mode warning
+headless = true
+
+[browser]
+# Internet address where users should point their browsers to connect to the app
+serverAddress = "0.0.0.0"
+
+# Whether to send usage statistics to Streamlit
+gatherUsageStats = false
+
+[runner]
+# Allows you to type a variable or string by itself in a single line of Python code
+magicEnabled = true
+
+# Install a Python tracer to allow you to stop or pause your script at any point
+installTracer = false
+
+# Sets the MPLBACKEND environment variable
+fixMatplotlib = true
+
+# Handle script rerun requests immediately
+fastReruns = true
+
+[client]
+# Whether to enable st.cache
+caching = true
+
+# If false, makes your Streamlit script not draw to a Streamlit app
+displayEnabled = true
+
+# Controls whether uncaught app exceptions are displayed in the browser
+showErrorDetails = true
+
+# Change the visibility of items in the toolbar
+toolbarMode = "minimal"

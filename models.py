@@ -14,11 +14,20 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+def get_config(key: str, default: str = None) -> str:
+    """Get configuration from environment or Streamlit secrets"""
+    # Try Streamlit secrets first (for deployment)
+    try:
+        return st.secrets.get(key, os.getenv(key, default))
+    except:
+        # Fall back to environment variables (for local development)
+        return os.getenv(key, default)
+
 # MongoDB connection
 @st.cache_resource
 def get_database_connection():
     """Create and return MongoDB connection"""
-    mongodb_uri = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
+    mongodb_uri = get_config('MONGODB_URI', 'mongodb://localhost:27017/')
     try:
         client = MongoClient(mongodb_uri, serverSelectionTimeoutMS=5000)
         # Test the connection
@@ -29,11 +38,12 @@ def get_database_connection():
         if "mongodb+srv" in mongodb_uri:
             st.error("Failed to connect to MongoDB Atlas. Please check:")
             st.info("1. Your internet connection")
-            st.info("2. MongoDB Atlas credentials in .env file")
+            st.info("2. MongoDB Atlas credentials in secrets/environment")
             st.info("3. IP whitelist settings in MongoDB Atlas")
         else:
             st.error("Please ensure MongoDB is installed and running.")
-            st.info("Run './install-mongodb.sh' for installation help.")
+            st.info("For local development: Install MongoDB")
+            st.info("For Streamlit Cloud: Use MongoDB Atlas")
         return None
 
 def init_database():
@@ -43,7 +53,7 @@ def init_database():
         return None
     
     try:
-        db = client[os.getenv('DB_NAME', 'alayatales')]
+        db = client[get_config('DB_NAME', 'alayatales')]
         
         # Create indexes
         db.users.create_index("email", unique=True)
@@ -59,7 +69,7 @@ def get_db():
     client = get_database_connection()
     if client is None:
         return None
-    return client[os.getenv('DB_NAME', 'alayatales')]
+    return client[get_config('DB_NAME', 'alayatales')]
 
 # Temple Model Functions
 def create_temple(temple_data: Dict) -> Optional[str]:
