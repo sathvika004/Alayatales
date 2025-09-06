@@ -6,7 +6,7 @@ streamlit-option-menu==0.3.6
 pymongo==4.5.0
 
 # Image processing
-Pillow==10.1.0
+Pillow
 
 # Data handling
 pandas==2.1.3
