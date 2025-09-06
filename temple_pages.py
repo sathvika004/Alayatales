@@ -24,20 +24,55 @@ from auth import is_admin, require_auth
 def show_home_page():
     """Display the home page with featured temples"""
     st.markdown("<h1 style='text-align: center;'>Welcome to Alayatales 🛕</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; font-size: 18px;'>Discover and explore sacred temples</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; font-size: 18px;'>Discover and explore sacred temples around the world</p>", unsafe_allow_html=True)
+    
+    # Quick stats
+    stats = get_temple_stats()
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("🛕 Total Temples", stats['total_temples'])
+    with col2:
+        st.metric("📍 Locations", len(stats.get('temples_by_location', [])))
+    with col3:
+        st.metric("👥 Community Members", stats['total_users'])
+    with col4:
+        st.metric("📸 Images", sum(len(t.get('images', [])) for t in get_all_temples()))
+    
+    st.markdown("---")
     
     # Search bar
     col1, col2, col3 = st.columns([1, 3, 1])
     with col2:
         search_query = st.text_input("🔍 Search temples by name or location", placeholder="Enter temple name or location...")
         
+    # Quick action buttons
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button("🛕 Browse All Temples", use_container_width=True):
+            st.session_state.page = "temples"
+            st.rerun()
+    with col2:
+        if st.button("ℹ️ Learn More", use_container_width=True):
+            st.session_state.page = "about"
+            st.rerun()
+    with col3:
+        if st.button("❓ Need Help?", use_container_width=True):
+            st.session_state.page = "help"
+            st.rerun()
+    
+    st.markdown("---")
+        
     # Get temples
     if search_query:
         temples = search_temples(search_query)
-        st.markdown(f"### Search Results for '{search_query}'")
+        st.markdown(f"### 🔍 Search Results for '{search_query}'")
+        if not temples:
+            st.info("No temples found matching your search. Try different keywords.")
+            temples = get_all_temples()[:6]  # Show featured temples as fallback
+            st.markdown("### ✨ Featured Temples")
     else:
         temples = get_all_temples()[:6]  # Show only 6 featured temples on home
-        st.markdown("### Featured Temples")
+        st.markdown("### ✨ Featured Temples")
     
     if temples:
         # Display temples in a grid
@@ -145,6 +180,11 @@ def display_temple_card(temple: Dict):
 
 def show_temple_detail(temple_id: str):
     """Display detailed view of a single temple"""
+    # Show success message if any
+    if st.session_state.get('show_success_message'):
+        st.success(st.session_state.show_success_message)
+        del st.session_state.show_success_message
+    
     temple = get_temple_by_id(temple_id)
     
     if not temple:
@@ -224,13 +264,20 @@ def show_temple_detail(temple_id: str):
                 st.rerun()
         with col2:
             if st.button("🗑️ Delete Temple", use_container_width=True, type="secondary"):
-                if st.checkbox("Confirm deletion"):
+                if st.session_state.get(f'confirm_delete_{temple_id}', False):
                     if delete_temple(temple_id):
                         st.success("Temple deleted successfully!")
                         st.session_state.page = "temples"
+                        st.session_state.selected_temple = None
+                        # Clear confirmation state
+                        if f'confirm_delete_{temple_id}' in st.session_state:
+                            del st.session_state[f'confirm_delete_{temple_id}']
                         st.rerun()
                     else:
                         st.error("Failed to delete temple")
+                else:
+                    st.session_state[f'confirm_delete_{temple_id}'] = True
+                    st.warning("⚠️ Click 'Delete Temple' again to confirm deletion. This action cannot be undone!")
 
 def show_add_temple():
     """Display form to add a new temple"""
@@ -327,10 +374,17 @@ def show_add_temple():
                     st.error(f"Error processing {uploaded_file.name}: {str(e)}")
                     continue
         
-        # Submit button
+        # Submit buttons
         col1, col2, col3 = st.columns([1, 1, 1])
+        with col1:
+            if st.form_submit_button("🔄 Clear Form", use_container_width=True):
+                st.rerun()
         with col2:
-            submit_button = st.form_submit_button("Add Temple", use_container_width=True)
+            submit_button = st.form_submit_button("➕ Add Temple", use_container_width=True, type="primary")
+        with col3:
+            if st.form_submit_button("❌ Cancel", use_container_width=True):
+                st.session_state.page = "admin"
+                st.rerun()
         
         # Show document size estimate
         if images:
@@ -366,12 +420,16 @@ def show_add_temple():
                 
                 temple_id = create_temple(temple_data)
                 if temple_id:
-                    st.success("Temple added successfully!")
+                    st.success("🎉 Temple added successfully!")
+                    st.balloons()  # Celebration animation
+                    st.info("Redirecting to temple details...")
                     st.session_state.selected_temple = temple_id
                     st.session_state.page = "temple_detail"
+                    st.session_state.show_success_message = f"Temple '{name}' has been added successfully!"
                     st.rerun()
                 else:
-                    st.error("Failed to add temple. Please try again.")
+                    st.error("❌ Failed to add temple. Please check your data and try again.")
+                    st.error("If the problem persists, contact the administrator.")
             else:
                 st.warning("Please fill in all required fields marked with *")
 
@@ -552,11 +610,15 @@ def show_edit_temple(temple_id: str):
                 }
                 
                 if update_temple(temple_id, update_data):
-                    st.success("Temple updated successfully!")
+                    st.success("🎉 Temple updated successfully!")
+                    st.balloons()  # Celebration animation
+                    st.info("Redirecting to temple details...")
                     st.session_state.page = "temple_detail"
+                    st.session_state.show_success_message = f"Temple '{name}' has been updated successfully!"
                     st.rerun()
                 else:
-                    st.error("Failed to update temple. Please try again.")
+                    st.error("❌ Failed to update temple. Please check your data and try again.")
+                    st.error("If the problem persists, contact the administrator.")
             else:
                 st.warning("Please fill in all required fields marked with *")
 
@@ -615,6 +677,21 @@ def show_admin_dashboard():
     with col3:
         if st.button("👥 Manage Users", use_container_width=True):
             st.session_state.show_users = True
+            st.session_state.show_temples_mgmt = False
+    
+    # Additional management options
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button("🛠️ Manage Temples", use_container_width=True):
+            st.session_state.show_temples_mgmt = True
+            st.session_state.show_users = False
+    with col2:
+        if st.button("📊 Export Data", use_container_width=True):
+            st.session_state.show_export = True
+    with col3:
+        if st.button("⚙️ Settings", use_container_width=True):
+            st.session_state.page = "settings"
+            st.rerun()
     
     # User Management Section
     if st.session_state.get('show_users', False):
@@ -638,6 +715,110 @@ def show_admin_dashboard():
             st.dataframe(df, use_container_width=True)
         else:
             st.info("No users found")
+    
+    # Temple Management Section
+    if st.session_state.get('show_temples_mgmt', False):
+        st.markdown("---")
+        st.markdown("### Temple Management")
+        
+        temples = get_all_temples()
+        if temples:
+            st.markdown(f"**Total Temples:** {len(temples)}")
+            
+            # Temple management table
+            for temple in temples:
+                with st.expander(f"🛕 {temple.get('name', 'Unknown')} - {temple.get('location', 'Unknown')}"):
+                    col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
+                    
+                    with col1:
+                        st.write(f"**Description:** {temple.get('description', 'No description')[:100]}...")
+                        st.write(f"**Images:** {len(temple.get('images', []))} uploaded")
+                        st.write(f"**Created:** {str(temple.get('created_at', 'Unknown'))[:10]}")
+                    
+                    with col2:
+                        if st.button("👁️ View", key=f"admin_view_{temple['_id']}"):
+                            st.session_state.selected_temple = temple['_id']
+                            st.session_state.page = "temple_detail"
+                            st.rerun()
+                    
+                    with col3:
+                        if st.button("✏️ Edit", key=f"admin_edit_{temple['_id']}"):
+                            st.session_state.selected_temple = temple['_id']
+                            st.session_state.page = "edit_temple"
+                            st.rerun()
+                    
+                    with col4:
+                        if st.button("🗑️ Delete", key=f"admin_delete_{temple['_id']}"):
+                            if st.session_state.get(f'confirm_admin_delete_{temple["_id"]}', False):
+                                if delete_temple(temple['_id']):
+                                    st.success("Temple deleted successfully!")
+                                    st.rerun()
+                                else:
+                                    st.error("Failed to delete temple")
+                            else:
+                                st.session_state[f'confirm_admin_delete_{temple["_id"]}'] = True
+                                st.warning("Click again to confirm deletion")
+        else:
+            st.info("No temples found")
+    
+    # Export Data Section
+    if st.session_state.get('show_export', False):
+        st.markdown("---")
+        st.markdown("### 📊 Export Data")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### Temple Data")
+            if st.button("📤 Export Temples (JSON)", use_container_width=True):
+                try:
+                    import json
+                    temples = get_all_temples()
+                    # Remove images for export to reduce size
+                    export_data = []
+                    for temple in temples:
+                        temple_copy = temple.copy()
+                        temple_copy.pop('images', None)  # Remove images
+                        export_data.append(temple_copy)
+                    
+                    json_data = json.dumps(export_data, indent=2, default=str)
+                    st.download_button(
+                        label="💾 Download Temple Data",
+                        data=json_data,
+                        file_name=f"temples_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+                        mime="application/json"
+                    )
+                    st.success(f"✅ Ready to export {len(temples)} temples")
+                except Exception as e:
+                    st.error(f"Export failed: {str(e)}")
+        
+        with col2:
+            st.markdown("#### User Data")
+            if st.button("📤 Export Users (JSON)", use_container_width=True):
+                try:
+                    import json
+                    users = get_all_users()
+                    # Remove sensitive data
+                    export_data = []
+                    for user in users:
+                        user_copy = {
+                            'name': user.get('name'),
+                            'email': user.get('email'),
+                            'role': user.get('role'),
+                            'created_at': str(user.get('created_at', ''))
+                        }
+                        export_data.append(user_copy)
+                    
+                    json_data = json.dumps(export_data, indent=2, default=str)
+                    st.download_button(
+                        label="💾 Download User Data",
+                        data=json_data,
+                        file_name=f"users_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+                        mime="application/json"
+                    )
+                    st.success(f"✅ Ready to export {len(users)} users")
+                except Exception as e:
+                    st.error(f"Export failed: {str(e)}")
     
     # Recent Temples
     st.markdown("---")
