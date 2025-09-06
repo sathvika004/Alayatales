@@ -1,0 +1,54 @@
+[project]
+name = "alayatales"
+version = "0.1.0"
+description = "Temple Management System - A Streamlit application for managing temple information"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "streamlit==1.28.2",
+    "streamlit-option-menu==0.3.6",
+    "pymongo[srv]==4.5.0",
+    "Pillow==10.1.0",
+    "pandas==2.1.3",
+    "plotly==5.18.0",
+    "python-dotenv==1.0.0",
+    "python-dateutil==2.8.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "black>=23.9.0",
+    "flake8>=6.0.0",
+    "mypy>=1.5.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# Configure packaging for an application (not a package)
+[tool.hatch.build.targets.wheel]
+# Explicitly include top-level Python modules so editable builds succeed
+only-include = [
+  "app.py",
+  "models.py",
+  "auth.py",
+  "temple_pages.py"
+]
+
+[tool.uv]
+managed = true
+dev-dependencies = []
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311"]
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
