@@ -38,7 +38,7 @@ The aim is to **preserve India’s diverse temple heritage** and promote **templ
 | Frontend     | **Streamlit** (Python)          |
 | Backend      | **Python** (Optional Flask or FastAPI for APIs) |
 | Database     | **CSV / JSON** (initial), optional **MongoDB** |
-| Hosting      | **Streamlit Community Cloud**, Render, or Railway |
+| Hosting      | **Streamlit Community Cloud** |
 | Maps         | **Leaflet.js** / Streamlit map component |
 | Audio/Text   | **gTTS / OpenTTS** for voice rendering |
 | Languages    | Manual + IndicTrans2 for Telugu translation |
