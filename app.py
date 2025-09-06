@@ -150,7 +150,7 @@ def show_header():
     col1, col2, col3 = st.columns([3, 2, 2])
     
     with col1:
-        st.markdown("<h1 style='color: black; margin: 0;'>🏯ఆలయ కథలు🕉️</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='color: black; margin: 0;'>🛕ఆలయ కథలు🕉️</h1>", unsafe_allow_html=True)
         st.markdown("<p style='color: black; margin: 0;'>Discover Sacred Temples</p>", unsafe_allow_html=True)
     
     with col3:
