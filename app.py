@@ -150,12 +150,12 @@ def show_header():
     col1, col2, col3 = st.columns([3, 2, 2])
     
     with col1:
-        st.markdown("<h1 style='color: white; margin: 0;'>🛕 Alayatales</h1>", unsafe_allow_html=True)
-        st.markdown("<p style='color: white; margin: 0;'>Discover Sacred Temples</p>", unsafe_allow_html=True)
+        st.markdown("<h1 style='color: black; margin: 0;'>🛕 Alayatales</h1>", unsafe_allow_html=True)
+        st.markdown("<p style='color: black; margin: 0;'>Discover Sacred Temples</p>", unsafe_allow_html=True)
     
     with col3:
         if st.session_state.authenticated:
-            st.markdown(f"<p style='color: white; text-align: right;'>Welcome, {st.session_state.user['name']}!</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='color: black; text-align: right;'>Welcome, {st.session_state.user['name']}!</p>", unsafe_allow_html=True)
             if st.button("Logout", key="logout_header"):
                 logout_user()
                 st.rerun()
