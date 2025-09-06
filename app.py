@@ -19,8 +19,9 @@ Acknowledgments:
 
 __version__ = "1.0.0"
 
-import streamlit as st
 import os
+
+import streamlit as st
 from dotenv import load_dotenv
 
 # Try to import streamlit_option_menu, use fallback if not available
@@ -31,21 +32,15 @@ except ImportError:
     HAS_OPTION_MENU = False
 
 # Import custom modules
-from models import (
-    init_database
-)
-from auth import (
-    login_user,
-    logout_user,
-    register_user
-)
+from auth import login_user, logout_user, register_user
+from models import init_database
 from temple_pages import (
+    show_add_temple,
+    show_admin_dashboard,
+    show_edit_temple,
     show_home_page,
     show_temple_detail,
-    show_add_temple,
-    show_edit_temple,
-    show_admin_dashboard,
-    show_temple_list
+    show_temple_list,
 )
 
 # Load environment variables
@@ -202,15 +197,26 @@ def show_navigation():
             "👤 Profile": "profile"
         }
         
+        # Keep track of the last selected nav item to avoid resetting pages like temple_detail
+        if 'nav_selected' not in st.session_state:
+            reverse_mapping = {v: k for k, v in page_mapping.items()}
+            st.session_state.nav_selected = reverse_mapping.get(st.session_state.page, "🏠 Home")
+        
         # Use streamlit-option-menu if available, otherwise use buttons
         if HAS_OPTION_MENU:
+            # Determine default index based on last selection
+            try:
+                default_index = all_menu_items.index(st.session_state.nav_selected)
+            except ValueError:
+                default_index = 0
+            
             # Create navigation menu with option_menu
             selected = option_menu(
                 menu_title=None,
                 options=all_menu_items,
                 icons=None,
                 menu_icon="cast",
-                default_index=0,
+                default_index=default_index,
                 styles={
                     "container": {"padding": "0!important", "background-color": "#fafafa"},
                     "icon": {"color": "orange", "font-size": "20px"},
@@ -224,7 +230,12 @@ def show_navigation():
                     "nav-link-selected": {"background-color": "#667eea"},
                 }
             )
-            st.session_state.page = page_mapping.get(selected, "home")
+            st.session_state.nav_selected = selected
+            
+            # Only update page when current page is a nav page
+            # This prevents overwriting detail/edit pages set by in-page buttons
+            if st.session_state.page in page_mapping.values():
+                st.session_state.page = page_mapping.get(selected, "home")
         else:
             # Fallback: Use regular Streamlit buttons
             for menu_item in all_menu_items:
@@ -541,8 +552,9 @@ def show_settings_page():
         st.markdown("#### Export Data")
         if st.button("📤 Export All Temples", use_container_width=True):
             try:
-                from models import get_all_temples
                 import json
+
+                from models import get_all_temples
                 temples = get_all_temples()
                 # Remove images for export to reduce size
                 export_data = []
