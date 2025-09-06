@@ -275,23 +275,85 @@ def show_add_temple():
             "Upload temple images",
             type=['png', 'jpg', 'jpeg'],
             accept_multiple_files=True,
-            help="You can upload multiple images"
+            help="Maximum 5 images, each up to 5MB. Images will be automatically compressed."
         )
         
         # Process uploaded images
         images = []
         if uploaded_files:
+            # Limit number of images
+            max_images = 5
+            if len(uploaded_files) > max_images:
+                st.warning(f"⚠️ Only the first {max_images} images will be processed.")
+                uploaded_files = uploaded_files[:max_images]
+            
             for uploaded_file in uploaded_files:
-                # Convert to base64
-                bytes_data = uploaded_file.getvalue()
-                base64_image = base64.b64encode(bytes_data).decode()
-                images.append(f"data:image/{uploaded_file.type.split('/')[-1]};base64,{base64_image}")
+                try:
+                    # Check file size (5MB limit)
+                    file_size = len(uploaded_file.getvalue())
+                    max_size = 5 * 1024 * 1024  # 5MB
+                    if file_size > max_size:
+                        st.error(f"❌ {uploaded_file.name} is too large ({file_size//1024//1024}MB). Max: 5MB")
+                        continue
+                    
+                    # Open and compress image
+                    image = Image.open(uploaded_file)
+                    
+                    # Convert to RGB if necessary (for JPEG compatibility)
+                    if image.mode in ('RGBA', 'P'):
+                        image = image.convert('RGB')
+                    
+                    # Resize image if too large (max 800px width/height)
+                    max_size = 800
+                    if image.width > max_size or image.height > max_size:
+                        image.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
+                    
+                    # Save compressed image to bytes
+                    img_buffer = io.BytesIO()
+                    image.save(img_buffer, format='JPEG', quality=85, optimize=True)
+                    img_buffer.seek(0)
+                    
+                    # Convert to base64
+                    base64_image = base64.b64encode(img_buffer.getvalue()).decode()
+                    images.append(f"data:image/jpeg;base64,{base64_image}")
+                    
+                    # Show compression info
+                    original_size = len(uploaded_file.getvalue())
+                    compressed_size = len(img_buffer.getvalue())
+                    compression_ratio = (1 - compressed_size/original_size) * 100
+                    st.info(f"📸 {uploaded_file.name}: {original_size//1024}KB → {compressed_size//1024}KB ({compression_ratio:.1f}% smaller)")
+                    
+                except Exception as e:
+                    st.error(f"Error processing {uploaded_file.name}: {str(e)}")
+                    continue
         
         # Submit button
         col1, col2, col3 = st.columns([1, 1, 1])
         with col2:
             submit_button = st.form_submit_button("Add Temple", use_container_width=True)
         
+        # Show document size estimate
+        if images:
+            import json
+            import sys
+            temp_data = {
+                'name': name or 'Sample',
+                'location': location or 'Sample',
+                'description': description or 'Sample',
+                'timings': timings,
+                'images': images
+            }
+            doc_size = sys.getsizeof(json.dumps(temp_data, default=str))
+            size_mb = doc_size / (1024 * 1024)
+            
+            if size_mb > 15:
+                st.error(f"⚠️ Document size: {size_mb:.1f}MB (exceeds 15MB limit)")
+                st.error("Please reduce number of images or image quality")
+            elif size_mb > 10:
+                st.warning(f"⚠️ Document size: {size_mb:.1f}MB (approaching limit)")
+            else:
+                st.success(f"✅ Document size: {size_mb:.1f}MB (within limits)")
+
         if submit_button:
             if name and location and description:
                 temple_data = {
@@ -409,16 +471,63 @@ def show_edit_temple(temple_id: str):
             "Upload additional images",
             type=['png', 'jpg', 'jpeg'],
             accept_multiple_files=True,
-            help="These will be added to existing images"
+            help="Maximum 5 total images per temple. Images will be automatically compressed."
         )
         
         # Process uploaded images
         new_images = []
         if uploaded_files:
-            for uploaded_file in uploaded_files:
-                bytes_data = uploaded_file.getvalue()
-                base64_image = base64.b64encode(bytes_data).decode()
-                new_images.append(f"data:image/{uploaded_file.type.split('/')[-1]};base64,{base64_image}")
+            # Check total image limit
+            current_image_count = len(temple.get('images', []))
+            max_total_images = 5
+            available_slots = max_total_images - current_image_count
+            
+            if available_slots <= 0:
+                st.error("❌ This temple already has the maximum number of images (5).")
+            else:
+                if len(uploaded_files) > available_slots:
+                    st.warning(f"⚠️ Only {available_slots} more images can be added.")
+                    uploaded_files = uploaded_files[:available_slots]
+                
+                for uploaded_file in uploaded_files:
+                    try:
+                        # Check file size (5MB limit)
+                        file_size = len(uploaded_file.getvalue())
+                        max_size = 5 * 1024 * 1024  # 5MB
+                        if file_size > max_size:
+                            st.error(f"❌ {uploaded_file.name} is too large ({file_size//1024//1024}MB). Max: 5MB")
+                            continue
+                        
+                        # Open and compress image
+                        image = Image.open(uploaded_file)
+                        
+                        # Convert to RGB if necessary (for JPEG compatibility)
+                        if image.mode in ('RGBA', 'P'):
+                            image = image.convert('RGB')
+                        
+                        # Resize image if too large (max 800px width/height)
+                        max_size = 800
+                        if image.width > max_size or image.height > max_size:
+                            image.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
+                        
+                        # Save compressed image to bytes
+                        img_buffer = io.BytesIO()
+                        image.save(img_buffer, format='JPEG', quality=85, optimize=True)
+                        img_buffer.seek(0)
+                        
+                        # Convert to base64
+                        base64_image = base64.b64encode(img_buffer.getvalue()).decode()
+                        new_images.append(f"data:image/jpeg;base64,{base64_image}")
+                        
+                        # Show compression info
+                        original_size = len(uploaded_file.getvalue())
+                        compressed_size = len(img_buffer.getvalue())
+                        compression_ratio = (1 - compressed_size/original_size) * 100
+                        st.info(f"📸 {uploaded_file.name}: {original_size//1024}KB → {compressed_size//1024}KB ({compression_ratio:.1f}% smaller)")
+                        
+                    except Exception as e:
+                        st.error(f"Error processing {uploaded_file.name}: {str(e)}")
+                        continue
         
         # Submit buttons
         col1, col2, col3 = st.columns([1, 1, 1])

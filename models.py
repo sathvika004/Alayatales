@@ -71,11 +71,34 @@ def get_db():
         return None
     return client[get_config('DB_NAME', 'alayatales')]
 
+def validate_document_size(document: Dict) -> bool:
+    """Validate that document size is within MongoDB limits"""
+    import json
+    import sys
+    
+    # Calculate approximate document size
+    doc_json = json.dumps(document, default=str)
+    doc_size = sys.getsizeof(doc_json)
+    
+    # MongoDB document limit is 16MB (16,777,216 bytes)
+    # We'll use 15MB as safe limit to account for metadata
+    max_size = 15 * 1024 * 1024  # 15MB
+    
+    if doc_size > max_size:
+        st.error(f"❌ Document too large: {doc_size//1024//1024}MB (max: 15MB)")
+        st.error("Please reduce image sizes or number of images.")
+        return False
+    
+    return True
+
 # Temple Model Functions
 def create_temple(temple_data: Dict) -> Optional[str]:
     """Create a new temple"""
     try:
         db = get_db()
+        if db is None:
+            return None
+            
         temple_data['created_at'] = datetime.utcnow()
         temple_data['updated_at'] = datetime.utcnow()
         
@@ -88,6 +111,10 @@ def create_temple(temple_data: Dict) -> Optional[str]:
             temple_data['images'] = []
         elif not isinstance(temple_data['images'], list):
             temple_data['images'] = [temple_data['images']]
+        
+        # Validate document size before inserting
+        if not validate_document_size(temple_data):
+            return None
         
         result = db.temples.insert_one(temple_data)
         return str(result.inserted_id)
@@ -124,10 +151,21 @@ def update_temple(temple_id: str, update_data: Dict) -> bool:
     """Update temple"""
     try:
         db = get_db()
+        if db is None:
+            return False
+            
         update_data['updated_at'] = datetime.utcnow()
         
         # Remove _id if present in update data
         update_data.pop('_id', None)
+        
+        # Get current temple data to validate final document size
+        current_temple = db.temples.find_one({"_id": ObjectId(temple_id)})
+        if current_temple:
+            # Merge current data with updates for size validation
+            merged_data = {**current_temple, **update_data}
+            if not validate_document_size(merged_data):
+                return False
         
         result = db.temples.update_one(
             {"_id": ObjectId(temple_id)},
