@@ -171,8 +171,12 @@ def display_temple_card(temple: Dict):
         st.markdown(description)
         
         # View details button
-        if st.button(f"View Details", key=f"view_{temple['_id']}"):
-            st.session_state.selected_temple = temple['_id']
+        temple_id = str(temple['_id'])
+        if st.session_state.get('debug_mode', False):
+            st.info(f"Debug: Temple ID for button: {temple_id}")
+            
+        if st.button(f"View Details", key=f"view_{temple_id}"):
+            st.session_state.selected_temple = temple_id
             st.session_state.page = "temple_detail"
             st.rerun()
         
@@ -185,19 +189,43 @@ def show_temple_detail(temple_id: str):
         st.success(st.session_state.show_success_message)
         del st.session_state.show_success_message
     
-    temple = get_temple_by_id(temple_id)
+    # Debug information (remove in production)
+    if st.session_state.get('debug_mode', False):
+        st.info(f"Debug: Looking for temple with ID: {temple_id}")
     
-    if not temple:
-        st.error("Temple not found!")
+    try:
+        temple = get_temple_by_id(temple_id)
+        
+        if not temple:
+            st.error("Temple not found!")
+            st.info(f"Temple ID: {temple_id}")
+            if st.button("Back to Temples"):
+                st.session_state.page = "temples"
+                st.rerun()
+            return
+    except Exception as e:
+        st.error(f"Error loading temple: {str(e)}")
         if st.button("Back to Temples"):
             st.session_state.page = "temples"
             st.rerun()
         return
     
-    # Back button
-    if st.button("← Back to Temples"):
-        st.session_state.page = "temples"
-        st.rerun()
+    # Navigation buttons
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col1:
+        if st.button("← Back to Temples"):
+            st.session_state.page = "temples"
+            st.rerun()
+    with col2:
+        if st.session_state.authenticated and st.session_state.user.get('role') == 'admin':
+            if st.button("📊 Back to Admin"):
+                st.session_state.page = "admin"
+                st.rerun()
+    with col3:
+        if st.session_state.authenticated and st.session_state.user.get('role') == 'admin':
+            if st.button("✏️ Edit Temple"):
+                st.session_state.page = "edit_temple"
+                st.rerun()
     
     # Temple name and location
     st.markdown(f"# {temple.get('name', 'Unknown Temple')}")
@@ -630,6 +658,37 @@ def show_admin_dashboard():
         st.error("Access denied. Admin privileges required.")
         return
     
+    # Debug toggle (for troubleshooting)
+    with st.expander("🔧 Debug Options"):
+        debug_mode = st.checkbox("Enable Debug Mode", value=st.session_state.get('debug_mode', False))
+        st.session_state.debug_mode = debug_mode
+        if debug_mode:
+            st.info("Debug mode enabled - additional information will be shown")
+            
+            # Test database connection
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Test Database Connection"):
+                    from models import get_db, get_all_temples
+                    db = get_db()
+                    if db is not None:
+                        st.success("✅ Database connection successful")
+                        temples = get_all_temples()
+                        st.info(f"Found {len(temples)} temples in database")
+                        if temples:
+                            st.json([{"id": t["_id"], "name": t.get("name", "Unknown")} for t in temples[:3]])
+                    else:
+                        st.error("❌ Database connection failed")
+            
+            with col2:
+                if st.button("Create Sample Temples"):
+                    from models import create_sample_temples
+                    if create_sample_temples():
+                        st.success("✅ Sample temples created successfully!")
+                        st.rerun()
+                    else:
+                        st.error("❌ Failed to create sample temples")
+    
     # Statistics
     stats = get_temple_stats()
     
@@ -737,13 +796,13 @@ def show_admin_dashboard():
                     
                     with col2:
                         if st.button("👁️ View", key=f"admin_view_{temple['_id']}"):
-                            st.session_state.selected_temple = temple['_id']
+                            st.session_state.selected_temple = str(temple['_id'])
                             st.session_state.page = "temple_detail"
                             st.rerun()
                     
                     with col3:
                         if st.button("✏️ Edit", key=f"admin_edit_{temple['_id']}"):
-                            st.session_state.selected_temple = temple['_id']
+                            st.session_state.selected_temple = str(temple['_id'])
                             st.session_state.page = "edit_temple"
                             st.rerun()
                     
@@ -835,7 +894,7 @@ def show_admin_dashboard():
                 st.markdown(f"📍 {temple.get('location', 'Unknown')}")
             with col3:
                 if st.button("View", key=f"view_admin_{temple['_id']}"):
-                    st.session_state.selected_temple = temple['_id']
+                    st.session_state.selected_temple = str(temple['_id'])
                     st.session_state.page = "temple_detail"
                     st.rerun()
     else:

@@ -382,7 +382,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 **Made with ❤️ for preserving temple heritage**
 
-*© 2024 Temple Heritage Team. All rights reserved.*
+*© 2025 Temple Heritage Team. All rights reserved.*
 
 ---
 

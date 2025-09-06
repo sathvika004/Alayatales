@@ -523,7 +523,8 @@ def show_settings_page():
     with col1:
         st.metric("App Version", "1.0.0")
     with col2:
-        st.metric("Database Status", "Connected" if init_database() else "Disconnected")
+        db_status = init_database()
+        st.metric("Database Status", "Connected" if db_status is not None else "Disconnected")
     with col3:
         from models import get_temple_stats
         stats = get_temple_stats()
@@ -706,7 +707,7 @@ def show_footer():
     <div style='text-align: center; color: #666; padding: 1rem; margin-top: 2rem;'>
         <p><strong>Alayatales v1.0.0</strong> - Made with ❤️ for preserving temple heritage</p>
         <p>Built with 🚀 Streamlit • 🍃 MongoDB • 🐍 Python • 🖼️ Pillow • 📈 Plotly</p>
-        <p>© 2024 Temple Heritage Team • Open Source under MIT License</p>
+        <p>© 2025 Temple Heritage Team • Open Source under MIT License</p>
     </div>
     """, unsafe_allow_html=True)
 

@@ -8,6 +8,7 @@ from typing import List, Dict, Optional
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
 from bson import ObjectId
+from bson.errors import InvalidId
 import streamlit as st
 from dotenv import load_dotenv
 
@@ -70,6 +71,14 @@ def get_db():
     if client is None:
         return None
     return client[get_config('DB_NAME', 'alayatales')]
+
+def is_valid_object_id(oid: str) -> bool:
+    """Check if string is a valid ObjectId"""
+    try:
+        ObjectId(oid)
+        return True
+    except (InvalidId, TypeError):
+        return False
 
 def validate_document_size(document: Dict) -> bool:
     """Validate that document size is within MongoDB limits"""
@@ -138,13 +147,34 @@ def get_all_temples() -> List[Dict]:
 def get_temple_by_id(temple_id: str) -> Optional[Dict]:
     """Get temple by ID"""
     try:
+        # Validate ObjectId format first
+        if not is_valid_object_id(temple_id):
+            if st.session_state.get('debug_mode', False):
+                st.error(f"Debug: Invalid ObjectId format: {temple_id}")
+            return None
+            
         db = get_db()
+        if db is None:
+            st.error("Database connection failed")
+            return None
+            
+        # Debug information
+        if st.session_state.get('debug_mode', False):
+            st.info(f"Debug: Searching for temple with ID: {temple_id}")
+            
         temple = db.temples.find_one({"_id": ObjectId(temple_id)})
         if temple:
             temple['_id'] = str(temple['_id'])
+            if st.session_state.get('debug_mode', False):
+                st.success(f"Debug: Temple found: {temple.get('name', 'Unknown')}")
+        else:
+            if st.session_state.get('debug_mode', False):
+                st.warning(f"Debug: No temple found with ID: {temple_id}")
         return temple
     except Exception as e:
         st.error(f"Error fetching temple: {e}")
+        if st.session_state.get('debug_mode', False):
+            st.error(f"Debug: Exception details: {str(e)}")
         return None
 
 def update_temple(temple_id: str, update_data: Dict) -> bool:
@@ -324,6 +354,14 @@ def get_temple_stats() -> Dict:
     """Get temple statistics"""
     try:
         db = get_db()
+        if db is None:
+            return {
+                "total_temples": 0,
+                "total_users": 0,
+                "admin_users": 0,
+                "temples_by_location": []
+            }
+            
         total_temples = db.temples.count_documents({})
         total_users = db.users.count_documents({})
         admin_users = db.users.count_documents({"role": "admin"})
@@ -349,3 +387,48 @@ def get_temple_stats() -> Dict:
             "admin_users": 0,
             "temples_by_location": []
         }
+
+def create_sample_temples() -> bool:
+    """Create sample temples for testing"""
+    try:
+        db = get_db()
+        if db is None:
+            return False
+            
+        # Check if temples already exist
+        if db.temples.count_documents({}) > 0:
+            return True
+            
+        sample_temples = [
+            {
+                "name": "Golden Temple",
+                "location": "Amritsar, Punjab",
+                "description": "The Golden Temple, also known as Harmandir Sahib, is a gurdwara located in the city of Amritsar, Punjab, India. It is the holiest gurdwara and the most important pilgrimage site of Sikhism.",
+                "images": ["https://via.placeholder.com/400x300?text=Golden+Temple"],
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            },
+            {
+                "name": "Meenakshi Temple",
+                "location": "Madurai, Tamil Nadu",
+                "description": "Meenakshi Temple is a historic Hindu temple located on the southern bank of the Vaigai River in the temple city of Madurai, Tamil Nadu, India.",
+                "images": ["https://via.placeholder.com/400x300?text=Meenakshi+Temple"],
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            },
+            {
+                "name": "Lotus Temple",
+                "location": "New Delhi",
+                "description": "The Lotus Temple, located in Delhi, India, is a Baháʼí House of Worship that was dedicated in December 1986. Notable for its flowerlike shape, it has become a prominent attraction in the city.",
+                "images": ["https://via.placeholder.com/400x300?text=Lotus+Temple"],
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+        ]
+        
+        result = db.temples.insert_many(sample_temples)
+        return len(result.inserted_ids) > 0
+        
+    except Exception as e:
+        st.error(f"Error creating sample temples: {e}")
+        return False
