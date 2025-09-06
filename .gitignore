@@ -14,7 +14,7 @@ venv/
 .streamlit/secrets.toml
 
 # IDE
-.vscode/
+# .vscode/
 .idea/
 *.swp
 *.swo
