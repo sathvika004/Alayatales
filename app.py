@@ -1,5 +1,5 @@
 """
-Alayatales - Temple Management System
+Aalayatales - Temple Management System
 A Streamlit application for managing temple information
 
 Created with ❤️ for preserving and sharing temple heritage
@@ -150,7 +150,7 @@ def show_header():
     col1, col2, col3 = st.columns([3, 2, 2])
     
     with col1:
-        st.markdown("<h1 style='color: black; margin: 0;'>🛕 Alayatales</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='color: black; margin: 0;'>🛕 Aalayatales</h1>", unsafe_allow_html=True)
         st.markdown("<p style='color: black; margin: 0;'>Discover Sacred Temples</p>", unsafe_allow_html=True)
     
     with col3:
@@ -319,14 +319,14 @@ def show_register_page():
 
 def show_about_page():
     """Display about page with acknowledgments"""
-    st.markdown("<div class='header'><h2 style='text-align: center;'>About Alayatales</h2></div>", unsafe_allow_html=True)
+    st.markdown("<div class='header'><h2 style='text-align: center;'>About Aalayatales</h2></div>", unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("""
-        ### 🛕 Welcome to Alayatales
+        ### 🛕 Welcome to Aalayatales
         
-        **Alayatales** is a comprehensive temple management system designed to preserve and share the rich heritage of sacred temples. Our mission is to create a digital repository that celebrates the architectural beauty, spiritual significance, and cultural importance of temples worldwide.
+        **Aalayatales** is a comprehensive temple management system designed to preserve and share the rich heritage of sacred temples. Our mission is to create a digital repository that celebrates the architectural beauty, spiritual significance, and cultural importance of temples worldwide.
         
         ### ✨ Features
         - 📸 **Image Gallery**: High-quality temple photographs with automatic compression
@@ -382,9 +382,9 @@ def show_help_page():
     
     with tab1:
         st.markdown("""
-        ### 🚀 Getting Started with Alayatales
+        ### 🚀 Getting Started with Aalayatales
         
-        Welcome to Alayatales! Here's how to get started:
+        Welcome to Aalayatales! Here's how to get started:
         
         #### 1. **Registration**
         - Click on "📝 Register" in the sidebar
@@ -480,8 +480,8 @@ def show_help_page():
         
         #### **General Questions**
         
-        **Q: Is Alayatales free to use?**
-        A: Yes! Alayatales is completely free and open source.
+        **Q: Is Aalayatales free to use?**
+        A: Yes! Aalayatales is completely free and open source.
         
         **Q: Can I use this without creating an account?**
         A: You can browse temples without an account, but you need to register to access additional features.
@@ -717,7 +717,7 @@ def show_footer():
     st.markdown("---")
     st.markdown("""
     <div style='text-align: center; color: #666; padding: 1rem; margin-top: 2rem;'>
-        <p><strong>Alayatales v1.0.0</strong> - Made with ❤️ for preserving temple heritage</p>
+        <p><strong>Aalayatales v1.0.0</strong> - Made with ❤️ for preserving temple heritage</p>
         <p>Built with 🚀 Streamlit • 🍃 MongoDB • 🐍 Python • 🖼️ Pillow • 📈 Plotly</p>
         <p>© 2025 Temple Heritage Team • Open Source under MIT License</p>
     </div>
